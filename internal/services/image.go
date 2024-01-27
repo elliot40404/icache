@@ -100,6 +100,7 @@ func (s *ImageService) GetImage(imageURL string) (*ImageDownload, error) {
 		return nil, err
 	}
 
+	// resize the image in the background
 	s.ResizeImage(downloadedImg, int(s.Width), int(s.Height))
 
 	// Save the image in the cache
@@ -118,38 +119,15 @@ func (s *ImageService) ResizeImage(img *ImageDownload, width, height int) {
 	// convert the img to an image.Image
 	newImg := bimg.NewImage(img.Img.Bytes())
 
-	// get current width and height
-	imgSize, err := newImg.Size()
-	if err != nil {
-		slog.Info("Cannot get image size", "error", err.Error())
-		return
-	}
-	curHeight := imgSize.Height
-	curWidth := imgSize.Width
-
-	if curHeight < height && curWidth < width {
-		slog.Info("Image is already smaller than the required size")
-		return
-	}
-
-	aspectRatio := float64(curWidth) / float64(curHeight)
-	if aspectRatio > 1 {
-		height = int(float64(width) / aspectRatio)
-	} else {
-		width = int(float64(height) * aspectRatio)
-	}
-
-	slog.Info("Resizing image", "width", width, "height", height)
-
 	// resize the image
-	rImg, err := newImg.Resize(width, height)
+	resizedImg, err := newImg.Resize(width, height)
 	if err != nil {
 		slog.Info("Cannot resize image", "error", err.Error())
 		return
 	}
 
 	// convert the resized image to a buffer
-	buf := bytes.NewBuffer(rImg)
+	buf := bytes.NewBuffer(resizedImg)
 
 	// update the image buffer
 	img.Img = buf

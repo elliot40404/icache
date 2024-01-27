@@ -2,6 +2,7 @@ package models
 
 import (
 	"bytes"
+	"sync"
 )
 
 type CachedImage struct {
@@ -10,28 +11,32 @@ type CachedImage struct {
 	Size  int64
 }
 
-// TODO: use sync map
-type ImageCache map[string]CachedImage
+type ImageCache struct {
+	store sync.Map
+}
 
 func NewImageCache() *ImageCache {
-	var cache ImageCache = make(map[string]CachedImage)
-	return &cache
+	return &ImageCache{}
 }
 
 func (c *ImageCache) GET(key string) (CachedImage, bool) {
-	value, ok := (*c)[key]
-	return value, ok
+	value, ok := c.store.Load(key)
+	if !ok {
+		return CachedImage{}, false
+	}
+
+	return value.(CachedImage), true
 }
 
 func (c *ImageCache) SET(key string, value CachedImage) {
-	(*c)[key] = value
+	c.store.Store(key, value)
 }
 
 func (c *ImageCache) HAS(key string) bool {
-	_, ok := (*c)[key]
+	_, ok := c.store.Load(key)
 	return ok
 }
 
 func (c *ImageCache) DELETE(key string) {
-	delete(*c, key)
+	c.store.Delete(key)
 }
