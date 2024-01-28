@@ -41,3 +41,19 @@ func (c *ImageCache) HAS(key string) bool {
 func (c *ImageCache) DELETE(key string) {
 	c.store.Delete(key)
 }
+
+func (c *ImageCache) GET_ALL_KEYS() []string {
+	keys := make([]string, 0)
+	c.store.Range(func(key, value interface{}) bool {
+		keys = append(keys, key.(string))
+		return true
+	})
+	return keys
+}
+
+func (c *ImageCache) FLUSH() {
+	c.store.Range(func(key, value interface{}) bool {
+		c.store.Delete(key)
+		return true
+	})
+}

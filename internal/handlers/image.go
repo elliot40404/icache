@@ -44,3 +44,45 @@ func (h *ImgHandler) GetImage(c echo.Context) error {
 	utils.AddCacheHeaders(&c, img.Cached)
 	return c.Blob(http.StatusOK, img.Ctype, img.Img.Bytes())
 }
+
+func (h *ImgHandler) GetImages(c echo.Context) error {
+	images := h.ImgService.GetImages()
+	return c.JSON(http.StatusOK, images)
+}
+
+func (h *ImgHandler) GetDynamicImage(c echo.Context) error {
+	imgURL := c.QueryParam("url")
+	if imgURL == "" {
+		return c.JSON(http.StatusBadRequest, "url query param is required")
+	}
+	width, height, err := utils.GetWidthHeight(c)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	img, err := h.ImgService.GetDynamicImage(imgURL, width, height)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	utils.AddCacheHeaders(&c, img.Cached)
+	return c.Blob(http.StatusOK, img.Ctype, img.Img.Bytes())
+}
+
+func (h *ImgHandler) DeleteImage(c echo.Context) error {
+	imgURL := c.QueryParam("url")
+	if imgURL == "" {
+		return c.JSON(http.StatusBadRequest, "url query param is required")
+	}
+	err := h.ImgService.DeleteImage(imgURL)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, "Image deleted")
+}
+
+func (h *ImgHandler) DeleteImages(c echo.Context) error {
+	err := h.ImgService.DeleteImages()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, "Images deleted")
+}

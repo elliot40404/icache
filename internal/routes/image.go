@@ -19,6 +19,10 @@ func (t *ImgRouter) RegisterRoutes(e *echo.Group) {
 	handler := h.NewImgHandler()
 
 	e.GET("/image", handler.GetImage)
+	e.GET("/images", handler.GetImages)
+	e.GET("/image/dynamic", handler.GetDynamicImage)
+	e.DELETE("/image", handler.DeleteImage)
+	e.DELETE("/images", handler.DeleteImages)
 
 	e.GET("/stats", handler.ServerStats)
 }

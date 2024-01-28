@@ -54,3 +54,20 @@ func AddCacheHeaders(c *echo.Context, cached bool) {
 		(*c).Response().Header().Set("X-Cache", "MISS")
 	}
 }
+
+func GetWidthHeight(c echo.Context) (uint, uint, error) {
+	width := c.QueryParam("width")
+	height := c.QueryParam("height")
+	if width == "" && height == "" {
+		return 0, 0, nil
+	} else if width == "" || height == "" {
+		return 0, 0, fmt.Errorf("both width and height query params are required")
+	}
+	return ParseUint(width), ParseUint(height), nil
+}
+
+func ParseUint(s string) uint {
+	var i uint
+	fmt.Sscanf(s, "%d", &i)
+	return i
+}

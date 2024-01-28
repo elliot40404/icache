@@ -135,3 +135,50 @@ func (s *ImageService) ResizeImage(img *ImageDownload, width, height int) {
 
 	slog.Info("Resized image details", "size", utils.BytesTo(utils.KB, (uint(img.Size))), "content-type", img.Ctype)
 }
+
+func (s *ImageService) GetDynamicImage(imageURL string, width, height uint) (*ImageDownload, error) {
+	// Check if the image is in the cache
+	if s.Cache.HAS(imageURL) {
+		img, ok := s.Cache.GET(imageURL)
+		if ok {
+			return &ImageDownload{
+				Img:    &img.Img,
+				Ctype:  img.Ctype,
+				Size:   img.Size,
+				Cached: true,
+			}, nil
+		}
+	}
+
+	// Download the image
+	downloadedImg, err := downloadImage(imageURL)
+	if err != nil {
+		return nil, err
+	}
+
+	// resize the image in the background
+	s.ResizeImage(downloadedImg, int(width), int(height))
+
+	// Save the image in the cache
+	s.Cache.SET(imageURL, models.CachedImage{
+		Img:   *downloadedImg.Img,
+		Ctype: downloadedImg.Ctype,
+		Size:  downloadedImg.Size,
+	})
+
+	return downloadedImg, nil
+}
+
+func (s *ImageService) DeleteImage(imageURL string) error {
+	s.Cache.DELETE(imageURL)
+	return nil
+}
+
+func (s *ImageService) GetImages() []string {
+	return s.Cache.GET_ALL_KEYS()
+}
+
+func (s *ImageService) DeleteImages() error {
+	s.Cache.FLUSH()
+	return nil
+}
