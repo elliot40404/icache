@@ -5,6 +5,7 @@ import (
 	"sync"
 )
 
+// TODO: Cache invalidation
 type CachedImage struct {
 	Img   bytes.Buffer
 	Ctype string
