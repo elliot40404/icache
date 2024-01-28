@@ -37,7 +37,21 @@ func (h *ImgHandler) GetImage(c echo.Context) error {
 	if imgURL == "" {
 		return c.JSON(http.StatusBadRequest, "url query param is required")
 	}
-	img, err := h.ImgService.GetImage(imgURL)
+	width, height, err := utils.GetWidthHeight(c)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	isWebP := c.QueryParam("format") == "webp"
+	var optimizeImage bool
+	optimized := c.QueryParam("optimized")
+	if optimized == "" || optimized == "true" {
+		optimizeImage = true
+	} else if optimized == "false" {
+		optimizeImage = false
+	} else {
+		return c.JSON(http.StatusBadRequest, "optimized query param must be true or false")
+	}
+	img, err := h.ImgService.GetImage(imgURL, width, height, isWebP, optimizeImage)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -48,24 +62,6 @@ func (h *ImgHandler) GetImage(c echo.Context) error {
 func (h *ImgHandler) GetImages(c echo.Context) error {
 	images := h.ImgService.GetImages()
 	return c.JSON(http.StatusOK, images)
-}
-
-func (h *ImgHandler) GetDynamicImage(c echo.Context) error {
-	imgURL := c.QueryParam("url")
-	if imgURL == "" {
-		return c.JSON(http.StatusBadRequest, "url query param is required")
-	}
-	width, height, err := utils.GetWidthHeight(c)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
-	isWebP := c.QueryParam("format") == "webp"
-	img, err := h.ImgService.GetDynamicImage(imgURL, width, height, isWebP)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
-	utils.AddCacheHeaders(&c, img.Cached)
-	return c.Blob(http.StatusOK, img.Ctype, img.Img.Bytes())
 }
 
 func (h *ImgHandler) DeleteImage(c echo.Context) error {
