@@ -64,8 +64,22 @@ func (s ImageService) ResizeImage(img *ImageDownload, width, height int) {
 	// convert the img to an image.Image
 	newImg := bimg.NewImage(img.Img.Bytes())
 
+	// calculate the new image size based on aspect ratio
+	size, err := newImg.Size()
+	if err != nil {
+		slog.Info("Cannot get image size", "error", err.Error())
+	}
+	owidth := size.Width
+	oheight := size.Height
+
+	slog.Info("Original image dimensions", "width", owidth, "height", oheight)
+
+	newWidth, newHeight := utils.CalcNewImageSize(owidth, oheight, width, height)
+
+	slog.Info("Resized image dimensions", "width", newWidth, "height", newHeight)
+
 	// resize the image
-	resizedImg, err := newImg.Resize(width, height)
+	resizedImg, err := newImg.Resize(newWidth, newHeight)
 	if err != nil {
 		slog.Info("Cannot resize image", "error", err.Error())
 		return

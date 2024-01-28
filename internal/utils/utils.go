@@ -28,7 +28,7 @@ func BytesTo(data Data, b uint) uint {
 	default:
 		return b
 	}
-}	
+}
 
 func WriteImageToDisk(img *bytes.Buffer) {
 	// write the image to file
@@ -48,6 +48,8 @@ func WriteImageToDisk(img *bytes.Buffer) {
 }
 
 func AddCacheHeaders(c *echo.Context, cached bool) {
+	(*c).Response().Header().Set(echo.HeaderServer, "icache")
+	(*c).Response().Header().Set("Cache-Control", "max-age=86400")
 	if cached {
 		(*c).Response().Header().Set("X-Cache", "HIT")
 	} else {
@@ -70,4 +72,14 @@ func ParseUint(s string) uint {
 	var i uint
 	fmt.Sscanf(s, "%d", &i)
 	return i
+}
+
+func CalcNewImageSize(width, height int, newWidth, newHeight int) (int, int) {
+	aspectRatio := float64(width)/float64(height)
+	newHeight = int(float64(newWidth) / aspectRatio)
+	if newHeight > height {
+		newHeight = height
+		newWidth = int(float64(newHeight) * aspectRatio)
+	}
+	return newWidth, newHeight
 }

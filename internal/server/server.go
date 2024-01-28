@@ -11,13 +11,20 @@ import (
 )
 
 type Server struct {
-	port  int
+	port int
+	addr string
+}
+
+func (s Server) listenAddr() string {
+	return s.addr + ":" + strconv.Itoa(s.port)
 }
 
 func Run() {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
+	addr := os.Getenv("ADDR")
 	NewServer := &Server{
-		port:  port,
+		port: port,
+		addr: addr,
 	}
 	e := echo.New()
 
@@ -34,5 +41,5 @@ func Run() {
 	v1Grp := e.Group("/api/v1")
 	routes.NewImgRouter().RegisterRoutes(v1Grp)
 
-	e.Logger.Fatal(e.Start(":" + strconv.Itoa(NewServer.port)))
+	e.Logger.Fatal(e.Start(NewServer.listenAddr()))
 }
