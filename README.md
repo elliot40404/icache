@@ -19,7 +19,7 @@ A simple golang server for dynamic caching of images from external sources in-me
 
 1. Clone the repository and `cd` into it
 1. Run `docker build -t icache .`
-1. Run `docker run -p 8080:8080 icache -e PORT=8080`
+1. Run `docker run --rm -d --name icache -e PORT=8080 -p 8080:8080 icache`
 1. or just run `docker compose up -d`
 
 ## API
