@@ -136,7 +136,7 @@ func (s *ImageService) ResizeImage(img *ImageDownload, width, height int) {
 	slog.Info("Resized image details", "size", utils.BytesTo(utils.KB, (uint(img.Size))), "content-type", img.Ctype)
 }
 
-func (s *ImageService) GetDynamicImage(imageURL string, width, height uint) (*ImageDownload, error) {
+func (s *ImageService) GetDynamicImage(imageURL string, width, height uint, webp bool) (*ImageDownload, error) {
 	// Check if the image is in the cache
 	if s.Cache.HAS(imageURL) {
 		img, ok := s.Cache.GET(imageURL)
@@ -158,6 +158,11 @@ func (s *ImageService) GetDynamicImage(imageURL string, width, height uint) (*Im
 
 	// resize the image in the background
 	s.ResizeImage(downloadedImg, int(width), int(height))
+
+	// convert the image to webp
+	if webp {
+		s.ConvertWebP(downloadedImg)
+	}
 
 	// Save the image in the cache
 	s.Cache.SET(imageURL, models.CachedImage{
@@ -181,4 +186,28 @@ func (s *ImageService) GetImages() []string {
 func (s *ImageService) DeleteImages() error {
 	s.Cache.FLUSH()
 	return nil
+}
+
+func (s *ImageService) ConvertWebP(img *ImageDownload) {
+	slog.Info("Converting image to webp", "size", utils.BytesTo(utils.KB, (uint(img.Size))), "content-type", img.Ctype)
+
+	// convert the img to an image.Image
+	newImg := bimg.NewImage(img.Img.Bytes())
+
+	// convert the image to webp
+	convertedImg, err := newImg.Convert(bimg.WEBP)
+	if err != nil {
+		slog.Info("Cannot convert image to webp", "error", err.Error())
+		return
+	}
+
+	// convert the resized image to a buffer
+	buf := bytes.NewBuffer(convertedImg)
+
+	// update the image buffer
+	img.Img = buf
+	img.Size = int64(buf.Len())
+	img.Ctype = "image/webp"
+
+	slog.Info("Converted image details", "size", utils.BytesTo(utils.KB, (uint(img.Size))), "content-type", img.Ctype)
 }

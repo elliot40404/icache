@@ -59,7 +59,8 @@ func (h *ImgHandler) GetDynamicImage(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	img, err := h.ImgService.GetDynamicImage(imgURL, width, height)
+	isWebP := c.QueryParam("format") == "webp"
+	img, err := h.ImgService.GetDynamicImage(imgURL, width, height, isWebP)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
