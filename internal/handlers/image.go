@@ -41,17 +41,12 @@ func (h *ImgHandler) GetImage(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
+
 	isWebP := c.QueryParam("format") == "webp"
-	var optimizeImage bool
-	optimized := c.QueryParam("optimized")
-	if optimized == "" || optimized == "true" {
-		optimizeImage = true
-	} else if optimized == "false" {
-		optimizeImage = false
-	} else {
-		return c.JSON(http.StatusBadRequest, "optimized query param must be true or false")
-	}
-	img, err := h.ImgService.GetImage(imgURL, width, height, isWebP, optimizeImage)
+	bypassCache := c.QueryParam("bypass") == "true"
+	resize := c.QueryParam("resize") != "false"
+
+	img, err := h.ImgService.GetImage(imgURL, width, height, isWebP, resize, bypassCache)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}

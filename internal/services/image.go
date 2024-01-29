@@ -28,9 +28,9 @@ func NewImageService(width, height uint) ImageService {
 	}
 }
 
-func (s *ImageService) GetImage(imageURL string, width, height uint, webp, optimized bool) (*ImageDownload, error) {
+func (s *ImageService) GetImage(imageURL string, width, height uint, webp, resize, bypassCache bool) (*ImageDownload, error) {
 	// Check if the image is in the cache
-	if s.Cache.HAS(imageURL) {
+	if s.Cache.HAS(imageURL) && !bypassCache{
 		img, ok := s.Cache.GET(imageURL)
 		if ok {
 			return &ImageDownload{
@@ -48,20 +48,18 @@ func (s *ImageService) GetImage(imageURL string, width, height uint, webp, optim
 		return nil, err
 	}
 
-	// add default values for width and height
-	if optimized {
-		slog.Info("Applying default optimizations")
+	// add default values for width and height and resize the image
+	if resize {
 		if width == 0 {
 			width = s.Width
 		}
 		if height == 0 {
 			height = s.Height
 		}
-	}
-
-	// resize the image in the background
-	if width != 0 && height != 0 {
-		s.ResizeImage(downloadedImg, int(width), int(height))
+		slog.Info("Applying resize", "width", width, "height", height)
+		if width != 0 && height != 0 {
+			s.ResizeImage(downloadedImg, int(width), int(height))
+		}
 	}
 
 	// convert the image to webp
