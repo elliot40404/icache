@@ -45,7 +45,7 @@ func (h *ImgHandler) GetImage(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	isWebP := c.QueryParam("format") == "webp"
+	isWebP := c.QueryParam("webp") == "true"
 	bypassCache := c.QueryParam("bypass") == "true"
 	resize := c.QueryParam("resize") != "false"
 
