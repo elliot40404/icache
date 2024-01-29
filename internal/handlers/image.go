@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"runtime"
 
@@ -15,8 +16,10 @@ type ImgHandler struct {
 }
 
 func NewImgHandler() *ImgHandler {
+	width,height := utils.GetDefaultWidthHeight()
+	fmt.Printf("Setting default width and height to %d x %d\n", width, height)
 	return &ImgHandler{
-		ImgService: services.NewImageService(300, 300),
+		ImgService: services.NewImageService(width, height),
 	}
 }
 

@@ -27,7 +27,7 @@ func Run() {
 		addr: addr,
 	}
 	e := echo.New()
-
+	e.HideBanner = true
 	// Global middleware
 	e.Use(middleware.RequestID())
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{

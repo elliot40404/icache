@@ -12,6 +12,11 @@ import (
 type Data int
 
 const (
+	DEFAULT_WIDTH  = 400
+	DEFAULT_HEIGHT = 400
+)
+
+const (
 	KB Data = iota + 1
 	MB
 	GB
@@ -75,11 +80,25 @@ func ParseUint(s string) uint {
 }
 
 func CalcNewImageSize(width, height int, newWidth, newHeight int) (int, int) {
-	aspectRatio := float64(width)/float64(height)
+	aspectRatio := float64(width) / float64(height)
 	newHeight = int(float64(newWidth) / aspectRatio)
 	if newHeight > height {
 		newHeight = height
 		newWidth = int(float64(newHeight) * aspectRatio)
 	}
 	return newWidth, newHeight
+}
+
+func GetDefaultWidthHeight() (uint, uint) {
+	width := os.Getenv("DEFAULT_WIDTH")
+	height := os.Getenv("DEFAULT_HEIGHT")
+	widthUint := ParseUint(width)
+	heightUint := ParseUint(height)
+	if widthUint == 0 {
+		widthUint = DEFAULT_WIDTH
+	}
+	if heightUint == 0 {
+		heightUint = DEFAULT_HEIGHT
+	}
+	return widthUint, heightUint
 }

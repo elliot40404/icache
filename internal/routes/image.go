@@ -14,7 +14,7 @@ func NewImgRouter() *ImgRouter {
 }
 
 func (t *ImgRouter) RegisterRoutes(e *echo.Group) {
-	log.Println("Registering routes for tasks")
+	log.Println("Registering routes for image handler")
 
 	handler := h.NewImgHandler()
 

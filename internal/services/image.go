@@ -30,7 +30,7 @@ func NewImageService(width, height uint) ImageService {
 
 func (s *ImageService) GetImage(imageURL string, width, height uint, webp, resize, bypassCache bool) (*ImageDownload, error) {
 	// Check if the image is in the cache
-	if s.Cache.HAS(imageURL) && !bypassCache{
+	if s.Cache.HAS(imageURL) && !bypassCache {
 		img, ok := s.Cache.GET(imageURL)
 		if ok {
 			return &ImageDownload{
