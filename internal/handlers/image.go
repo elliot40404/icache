@@ -16,7 +16,7 @@ type ImgHandler struct {
 }
 
 func NewImgHandler() *ImgHandler {
-	width,height := utils.GetDefaultWidthHeight()
+	width, height := utils.GetDefaultWidthHeight()
 	fmt.Printf("Setting default width and height to %d x %d\n", width, height)
 	return &ImgHandler{
 		ImgService: services.NewImageService(width, height),
@@ -53,7 +53,7 @@ func (h *ImgHandler) GetImage(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	utils.AddCacheHeaders(&c, img.Cached)
+	utils.AddCacheHeaders(c, img.Cached)
 	return c.Blob(http.StatusOK, img.Ctype, img.Img.Bytes())
 }
 

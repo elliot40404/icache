@@ -30,8 +30,8 @@ func NewImageService(width, height uint) ImageService {
 
 func (s *ImageService) GetImage(imageURL string, width, height uint, webp, resize, bypassCache bool) (*ImageDownload, error) {
 	// Check if the image is in the cache
-	if s.Cache.HAS(imageURL) && !bypassCache {
-		img, ok := s.Cache.GET(imageURL)
+	if s.Cache.Has(imageURL) && !bypassCache {
+		img, ok := s.Cache.Get(imageURL)
 		if ok {
 			return &ImageDownload{
 				Img:    &img.Img,
@@ -68,7 +68,7 @@ func (s *ImageService) GetImage(imageURL string, width, height uint, webp, resiz
 	}
 
 	// Save the image in the cache
-	s.Cache.SET(imageURL, models.CachedImage{
+	s.Cache.Set(imageURL, models.CachedImage{
 		Img:   *downloadedImg.Img,
 		Ctype: downloadedImg.Ctype,
 		Size:  downloadedImg.Size,
@@ -78,15 +78,15 @@ func (s *ImageService) GetImage(imageURL string, width, height uint, webp, resiz
 }
 
 func (s *ImageService) GetImages() []string {
-	return s.Cache.GET_ALL_KEYS()
+	return s.Cache.GetAllKeys()
 }
 
 func (s *ImageService) DeleteImage(imageURL string) error {
-	s.Cache.DELETE(imageURL)
+	s.Cache.Delete(imageURL)
 	return nil
 }
 
 func (s *ImageService) DeleteImages() error {
-	s.Cache.FLUSH()
+	s.Cache.Flush()
 	return nil
 }

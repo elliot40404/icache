@@ -1,10 +1,12 @@
 package server
 
 import (
+	"log"
 	"os"
 	"strconv"
 
 	"github.com/elliot40404/icache-echo/internal/routes"
+	// Load env variables from .env file.
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -20,7 +22,11 @@ func (s Server) listenAddr() string {
 }
 
 func Run() {
-	port, _ := strconv.Atoi(os.Getenv("PORT"))
+	port, err := strconv.Atoi(os.Getenv("PORT"))
+	if err != nil {
+		log.Println("Error parsing port from env, using default port 8080")
+		port = 8080
+	}
 	addr := os.Getenv("ADDR")
 	NewServer := &Server{
 		port: port,

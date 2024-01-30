@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-// TODO: Cache invalidation
+// TODO: Cache invalidation.
 type CachedImage struct {
 	Img   bytes.Buffer
 	Ctype string
@@ -20,7 +20,7 @@ func NewImageCache() *ImageCache {
 	return &ImageCache{}
 }
 
-func (c *ImageCache) GET(key string) (CachedImage, bool) {
+func (c *ImageCache) Get(key string) (CachedImage, bool) {
 	value, ok := c.store.Load(key)
 	if !ok {
 		return CachedImage{}, false
@@ -29,20 +29,20 @@ func (c *ImageCache) GET(key string) (CachedImage, bool) {
 	return value.(CachedImage), true
 }
 
-func (c *ImageCache) SET(key string, value CachedImage) {
+func (c *ImageCache) Set(key string, value CachedImage) {
 	c.store.Store(key, value)
 }
 
-func (c *ImageCache) HAS(key string) bool {
+func (c *ImageCache) Has(key string) bool {
 	_, ok := c.store.Load(key)
 	return ok
 }
 
-func (c *ImageCache) DELETE(key string) {
+func (c *ImageCache) Delete(key string) {
 	c.store.Delete(key)
 }
 
-func (c *ImageCache) GET_ALL_KEYS() []string {
+func (c *ImageCache) GetAllKeys() []string {
 	keys := make([]string, 0)
 	c.store.Range(func(key, value interface{}) bool {
 		keys = append(keys, key.(string))
@@ -51,7 +51,7 @@ func (c *ImageCache) GET_ALL_KEYS() []string {
 	return keys
 }
 
-func (c *ImageCache) FLUSH() {
+func (c *ImageCache) Flush() {
 	c.store.Range(func(key, value interface{}) bool {
 		c.store.Delete(key)
 		return true

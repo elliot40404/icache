@@ -24,9 +24,20 @@ func (s ImageService) DownloadImage(imageURL string) (*ImageDownload, error) {
 	}
 
 	// Make an HTTP GET request with redirects followed
-	resp, err := http.Get(parsedURL.String())
+	// resp, err := http.Get(parsedURL.String())
+	// if err != nil {
+	// 	fmt.Println("http.Get error:", err)
+	// 	return nil, err
+	// }
+	// defer resp.Body.Close()
+
+	// Create a new HTTP client with a default timeout and context
+	resp, err := http.DefaultClient.Do(&http.Request{
+		Method: http.MethodGet,
+		URL:    parsedURL,
+	})
 	if err != nil {
-		fmt.Println("http.Get error:", err)
+		fmt.Println("http.DefaultClient.Do error:", err)
 		return nil, err
 	}
 	defer resp.Body.Close()

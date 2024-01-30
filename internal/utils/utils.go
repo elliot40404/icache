@@ -12,8 +12,8 @@ import (
 type Data int
 
 const (
-	DEFAULT_WIDTH  = 400
-	DEFAULT_HEIGHT = 400
+	DefaultWidth  = 400
+	DefaultHeight = 400
 )
 
 const (
@@ -52,13 +52,13 @@ func WriteImageToDisk(img *bytes.Buffer) {
 	}
 }
 
-func AddCacheHeaders(c *echo.Context, cached bool) {
-	(*c).Response().Header().Set(echo.HeaderServer, "icache")
-	(*c).Response().Header().Set("Cache-Control", "max-age=86400")
+func AddCacheHeaders(c echo.Context, cached bool) {
+	c.Response().Header().Set(echo.HeaderServer, "icache")
+	c.Response().Header().Set("Cache-Control", "max-age=86400")
 	if cached {
-		(*c).Response().Header().Set("X-Cache", "HIT")
+		c.Response().Header().Set("X-Cache", "HIT")
 	} else {
-		(*c).Response().Header().Set("X-Cache", "MISS")
+		c.Response().Header().Set("X-Cache", "MISS")
 	}
 }
 
@@ -79,26 +79,26 @@ func ParseUint(s string) uint {
 	return i
 }
 
-func CalcNewImageSize(width, height int, newWidth, newHeight int) (int, int) {
-	aspectRatio := float64(width) / float64(height)
-	newHeight = int(float64(newWidth) / aspectRatio)
-	if newHeight > height {
-		newHeight = height
-		newWidth = int(float64(newHeight) * aspectRatio)
+func CalcNewImageSize(currWidth, currHeight, newWidth, newHeight int) (width, height int) {
+	aspectRatio := float64(currWidth) / float64(currHeight)
+	height = int(float64(newWidth) / aspectRatio)
+	if newHeight > currHeight {
+		height = currHeight
+		width = int(float64(newHeight) * aspectRatio)
 	}
-	return newWidth, newHeight
+	return width, height
 }
 
-func GetDefaultWidthHeight() (uint, uint) {
+func GetDefaultWidthHeight() (widthUint, heightUint uint) {
 	width := os.Getenv("DEFAULT_WIDTH")
 	height := os.Getenv("DEFAULT_HEIGHT")
-	widthUint := ParseUint(width)
-	heightUint := ParseUint(height)
+	widthUint = ParseUint(width)
+	heightUint = ParseUint(height)
 	if widthUint == 0 {
-		widthUint = DEFAULT_WIDTH
+		widthUint = DefaultWidth
 	}
 	if heightUint == 0 {
-		heightUint = DEFAULT_HEIGHT
+		heightUint = DefaultHeight
 	}
 	return widthUint, heightUint
 }
